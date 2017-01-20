@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.threshold.rxbus2demo.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnRxBus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RxBus(PublishBus)"
+            android:onClick="onClick"/>
+
+        <Button
+            android:id="@+id/btnBehaviorBus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="BehaviorBus"
+            android:onClick="onClick"/>
+
+        <Button
+            android:id="@+id/btnReplayBus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ReplayBus"
+            android:onClick="onClick"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="@string/bus_introduce"/>
+
+    </LinearLayout>
+
+
+</ScrollView>

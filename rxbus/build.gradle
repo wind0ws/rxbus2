@@ -1,0 +1,32 @@
+apply plugin: 'java'
+apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.wind0ws'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    // https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.4'
+
+    // https://mvnrepository.com/artifact/com.jakewharton.rxrelay2/rxrelay
+    compile('com.jakewharton.rxrelay2:rxrelay:2.0.0'){
+        exclude group: 'io.reactivex.rxjava2',module: 'rxjava'
+    }
+
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+publish {
+    artifactId = 'rxbus'//模块名称
+    userOrg = rootProject.userOrg
+    groupId = rootProject.groupId
+    uploadName = rootProject.uploadName //模块上传后所在的文件夹名称
+    publishVersion = rootProject.publishVersion//模块版本号
+    desc = rootProject.description//模块的描述
+    website = rootProject.website //模块的网站
+    licences = rootProject.licences //模块的licences
+}

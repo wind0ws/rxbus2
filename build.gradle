@@ -1,0 +1,38 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.novoda:bintray-release:0.4.0'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+def rxBusVersion = "1.0.0"
+
+ext {
+//-------- bintray config -----------
+    userOrg = "wind0ws"//bintray.com用户名
+    groupId = "com.threshold.rxbus2"//jcenter上的路径
+    publishVersion = rxBusVersion//版本号
+    desc = "RxBus is based on RxJava which post and listen event globally. "//类库的描述，不重要
+    website = "https://github.com/wind0ws/rxbus2"//类库的网站，不重要
+    uploadName = "rxbus2" //上传在bintray的文件夹
+    licences = ["Apache-2.0"]
+// --------bintray config-----
+}

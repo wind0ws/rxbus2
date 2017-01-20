@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">RxBus2</string>
+    <string name="bus_introduce">Welcome to RxBusDemo</string>
+</resources>
