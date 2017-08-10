@@ -2,8 +2,10 @@ package com.threshold.rxbus2demo;
 
 import android.app.Application;
 
-import com.orhanobut.logger.LogLevel;
+import com.orhanobut.logger.AndroidLogAdapter;
+import com.orhanobut.logger.FormatStrategy;
 import com.orhanobut.logger.Logger;
+import com.orhanobut.logger.PrettyFormatStrategy;
 import com.threshold.rxbus2.RxBus;
 import com.threshold.rxbus2demo.util.RxLogger;
 
@@ -19,15 +21,20 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Logger.init("RxBusDemo")
-                .hideThreadInfo()
-                .methodCount(3)
-                .logLevel(BuildConfig.DEBUG ? LogLevel.FULL : LogLevel.NONE);
+        FormatStrategy formatStrategy = PrettyFormatStrategy.newBuilder()
+                .tag("ExpInquiry")
+                .build();
+        Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy) {
+            @Override
+            public boolean isLoggable(int priority, String tag) {
+                return BuildConfig.DEBUG && super.isLoggable(priority, tag);
+            }
+        });
 
         RxBus.config(AndroidSchedulers.mainThread(),new RxLogger());
-        //If you don't want to record RxBus log,using this
+        //If you don't want to output RxBus log,using this instead
 //        RxBus.config(AndroidSchedulers.mainThread());
-
+        //OR this
 //        EventThread.setMainThreadScheduler(AndroidSchedulers.mainThread());
     }
 }

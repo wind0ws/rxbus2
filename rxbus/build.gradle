@@ -5,13 +5,13 @@ apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.wind0ws'
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava
-    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.4'
+    implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.2'
 
     // https://mvnrepository.com/artifact/com.jakewharton.rxrelay2/rxrelay
-    compile('com.jakewharton.rxrelay2:rxrelay:2.0.0'){
+    implementation('com.jakewharton.rxrelay2:rxrelay:2.0.0'){
         exclude group: 'io.reactivex.rxjava2',module: 'rxjava'
     }
 

@@ -40,7 +40,7 @@ public enum EventThread {
      * Set {@link #MAIN} {@link Scheduler} in your current environment.<br/>
      * For example in Android,you probably set @{code AndroidSchedulers.mainThread()}.
      * <p>
-     *     Note: {@link com.threshold.rxbus2.BaseBus#config(Scheduler)} is a handy method for this.
+     *     Note: {@link com.threshold.rxbus2.BaseBus#setMainScheduler(Scheduler)}  is a handy method for this.
      * </p>
      * @param scheduler {@link #MAIN} {@link Scheduler}
      */

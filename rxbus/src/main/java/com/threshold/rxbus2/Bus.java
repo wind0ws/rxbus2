@@ -1,6 +1,7 @@
 package com.threshold.rxbus2;
 
 import io.reactivex.Observable;
+import io.reactivex.annotations.NonNull;
 
 /**
  * Interface of Bus
@@ -11,7 +12,7 @@ public interface Bus {
      * Fire a event
      * @param event event will fire.
      */
-    void post(Object event);
+    void post(@NonNull Object event);
 
     /**
      * Get the specific type event observable.

@@ -28,7 +28,7 @@ public class ReplayBusActivity extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setTitle("ReplayBus");
         setContentView(R.layout.activity_replay_bus);
-        textView = (TextView) findViewById(R.id.text);
+        textView = findViewById(R.id.text);
         compositeDisposable = new CompositeDisposable();
     }
 
@@ -44,13 +44,13 @@ public class ReplayBusActivity extends AppCompatActivity implements View.OnClick
                 v.setEnabled(false);
                 break;
             case R.id.btnFireEvent:
-                ReplayBus.getInstance().post("ReplayBus"+ RandomUtil.random(100));
+                ReplayBus.getDefault().post("ReplayBus"+ RandomUtil.random(100));
                 break;
         }
     }
 
     private void listenStringEvent(final String tag) {
-        Disposable subscribe = ReplayBus.getInstance()
+        Disposable subscribe = ReplayBus.getDefault()
                 .ofType(String.class)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<String>() {

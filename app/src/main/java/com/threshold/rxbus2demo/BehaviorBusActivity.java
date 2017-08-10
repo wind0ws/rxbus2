@@ -30,7 +30,7 @@ public class BehaviorBusActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setTitle("BehaviorBus");
         setContentView(R.layout.activity_behavior_bus);
-        textView = (TextView) findViewById(R.id.text);
+        textView = findViewById(R.id.text);
         behaviorBus =  new BehaviorBus("Default Item");
         compositeDisposable = new CompositeDisposable();
     }

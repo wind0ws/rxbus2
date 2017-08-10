@@ -11,7 +11,7 @@ public class BehaviorBus extends BaseBus {
 
     private static volatile BehaviorBus defaultBus;
 
-    public static BehaviorBus getInstance() {
+    public static BehaviorBus getDefault() {
         if (defaultBus == null) {
             synchronized (BehaviorBus.class) {
                 if (defaultBus == null) {

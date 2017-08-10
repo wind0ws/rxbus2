@@ -6,6 +6,8 @@ import com.threshold.rxbus2.util.Logger;
 
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.annotations.Nullable;
 import io.reactivex.internal.functions.ObjectHelper;
 
 /**
@@ -22,24 +24,34 @@ public class BaseBus implements Bus {
      * <p>
      *     Handy method for {@link EventThread#setMainThreadScheduler(Scheduler)}
      * </p>
+     * This is only need to be set once.
      * @param mainScheduler mainScheduler for {@link EventThread#MAIN}
-     * @param logger Util for record RxBus log.if set null,will stop record log.
+     * @param logger Util for record Bus log.if set null, no log will output.
      */
-    public static void config(Scheduler mainScheduler, Logger logger) {
+    public static void config(@NonNull Scheduler mainScheduler,@Nullable Logger logger) {
         ObjectHelper.requireNonNull(mainScheduler, "mainScheduler == null ");
         EventThread.setMainThreadScheduler(mainScheduler);
         sLogger = logger;
     }
 
     /**
+     * Util for record Bus log. If set null, no log will output.
+     * @param logger {@link Logger}
+     */
+    public static void setLogger(@Nullable Logger logger) {
+        sLogger = logger;
+    }
+
+    /**
      * Set {@link EventThread#MAIN} {@link Scheduler} in your current environment.<br/>
+     * For example in Android,you probably set @{code AndroidSchedulers.mainThread()}.
      * <p>
      *     Handy method for {@link EventThread#setMainThreadScheduler(Scheduler)}
      * </p>
-     * @param mainScheduler scheduler for {@link EventThread#MAIN}
+     * @param mainScheduler mainScheduler for {@link EventThread#MAIN}
      */
-    public static void config(Scheduler mainScheduler) {
-        config(mainScheduler,null);
+    public static void setMainScheduler(@NonNull Scheduler mainScheduler) {
+        EventThread.setMainThreadScheduler(mainScheduler);
     }
 
     private Relay<Object> relay;
@@ -49,10 +61,13 @@ public class BaseBus implements Bus {
     }
 
     @Override
-    public void post(Object event) {
+    public void post(@NonNull Object event) {
         ObjectHelper.requireNonNull(event, "event == null");
         if (hasObservers()) {
+            LoggerUtil.debug("post event: %s", event);
             relay.accept(event);
+        } else {
+            LoggerUtil.warning("no observers,event will be discard:%s",event);
         }
     }
 

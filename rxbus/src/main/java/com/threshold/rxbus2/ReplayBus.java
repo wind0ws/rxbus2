@@ -12,7 +12,7 @@ public class ReplayBus extends BaseBus {
 
     private static volatile ReplayBus defaultBus;
 
-    public static ReplayBus getInstance() {
+    public static ReplayBus getDefault() {
         if (defaultBus == null) {
             synchronized (ReplayBus.class) {
                 if (defaultBus == null) {
