@@ -46,7 +46,7 @@ public class RxBusActivity extends AppCompatActivity implements View.OnClickList
 //                .subscribe(new Consumer<String>() {
 //                    @Override
 //                    public void accept(String s) throws Exception {
-//                        listenRxEvent("First Subscriber",s);
+//                        manualListenRxEvent("First Subscriber",s);
 //                    }
 //                });
 //        mCompositeDisposable.add(subscribe);
@@ -54,7 +54,7 @@ public class RxBusActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @RxSubscribe(observeOnThread = EventThread.MAIN) @SuppressWarnings("unused")
-    public void listenRxEvent(int code) {
+    public void autoListenRxEvent(int code) {
         String text = String.format("{ Receive event: %s\nCurrent thread: %s }", code, Thread.currentThread());
         Logger.d(text);
         textView.append(text);
@@ -62,7 +62,7 @@ public class RxBusActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @RxSubscribe(observeOnThread = EventThread.IO,isSticky = true) @SuppressWarnings("unused")
-    public void listenRxEvent2(String event) {
+    public void autoListenRxEvent2(String event) {
         final String text = String.format("{ Receive event: %s\nCurrent thread: %s }", event, Thread.currentThread());
         Logger.d(text);
         runOnUiThread(new Runnable() {
@@ -74,7 +74,7 @@ public class RxBusActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
-    public void listenRxEvent(String id, String event) {
+    public void manualListenRxEvent(String id, String event) {
         final String text = String.format("{[%s Receive event]: %s}", id, event);
         Logger.d(text);
         runOnUiThread(new Runnable() {
@@ -91,10 +91,10 @@ public class RxBusActivity extends AppCompatActivity implements View.OnClickList
         switch (view.getId()) {
             case R.id.btnFireEvent:
                 RxBus.getDefault().post(RandomUtil.random(10));
-                RxBus.getDefault().post("Hi,Fire event "+RandomUtil.random(10));
+                RxBus.getDefault().post("Hi, event "+RandomUtil.random(10));
                 break;
             case R.id.btnFireStickyEvent:
-                RxBus.getDefault().postSticky("Hello ,Fire sticky event "+RandomUtil.random(100));
+                RxBus.getDefault().postSticky("Hello, sticky event "+RandomUtil.random(100));
                 break;
             case R.id.btnAddNewSubscriber:
                 Disposable subscribe = RxBus.getDefault()
@@ -104,7 +104,7 @@ public class RxBusActivity extends AppCompatActivity implements View.OnClickList
                         .subscribe(new Consumer<String>() {
                             @Override
                             public void accept(String s) throws Exception {
-                                listenRxEvent("Second Subscriber", s);
+                                manualListenRxEvent("Second Subscriber", s);
                             }
                         });
                 mCompositeDisposable.add(subscribe);

@@ -23,6 +23,7 @@ public class ReplayBusActivity extends AppCompatActivity implements View.OnClick
 
     TextView textView;
     CompositeDisposable compositeDisposable;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +68,7 @@ public class ReplayBusActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         compositeDisposable.clear();
+        super.onDestroy();
     }
 }

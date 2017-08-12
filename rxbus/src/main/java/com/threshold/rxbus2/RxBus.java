@@ -36,6 +36,7 @@ import io.reactivex.schedulers.Schedulers;
  * subscriber.<br/>
  * See also {@link PublishRelay}
  */
+@SuppressWarnings("WeakerAccess")
 public class RxBus extends BaseBus {
 
     private static volatile RxBus defaultBus;
@@ -43,13 +44,13 @@ public class RxBus extends BaseBus {
     private Map<Object, CompositeDisposable> subscriptions = new HashMap<>();
     private final Map<Class<?>, List<Object>> stickyEventMap;
 
-    /**
-     * Use {@link #getDefault()} instead.
-     */
-    @Deprecated
-    public static RxBus getInstance() {
-        return getDefault();
-    }
+//    /*
+//     * Use {@link #getDefault()} instead.
+//     */
+//    @Deprecated
+//    public static RxBus getInstance() {
+//        return getDefault();
+//    }
 
     /**
      * Get the default instance of RxBus.
@@ -115,7 +116,8 @@ public class RxBus extends BaseBus {
      */
     @SuppressWarnings("unchecked")
     @Nullable
-    public <T> List<T> getSticky(Class<T> eventType) {
+    public <T> List<T> getSticky(@NonNull Class<T> eventType) {
+        ObjectHelper.requireNonNull(eventType, "eventType == null");
         synchronized (stickyEventMap) {
             List<T> list = (List<T>) stickyEventMap.get(eventType);
             return list == null ? null : Collections.unmodifiableList(list);
@@ -142,14 +144,15 @@ public class RxBus extends BaseBus {
      *
      * @param eventType the sticky event type that you want remove
      */
-    public void removeSticky(Class<?> eventType) {
+    public void removeSticky(@NonNull Class<?> eventType) {
+        ObjectHelper.requireNonNull(eventType, "eventType == null");
         synchronized (stickyEventMap) {
             stickyEventMap.remove(eventType);
         }
     }
 
     /**
-     * Remove all sticky event
+     * Remove all sticky event.
      */
     public void clearSticky() {
         synchronized (stickyEventMap) {
@@ -164,7 +167,7 @@ public class RxBus extends BaseBus {
      * @param <T>       event type
      * @return Observable of {@code T}
      */
-    public <T> Observable<T> ofStickyType(Class<T> eventType) {
+    public <T> Observable<T> ofStickyType(@NonNull Class<T> eventType) {
         synchronized (stickyEventMap) {
             @SuppressWarnings("unchecked")
             List<T> stickyEvents = (List<T>) stickyEventMap.get(eventType);
@@ -246,7 +249,7 @@ public class RxBus extends BaseBus {
                 .map(new Function<Method, Method>() {
                     @Override
                     public Method apply(Method method) throws Exception {
-                        LoggerUtil.debug("Set method can accessible: %s ", method);
+                        LoggerUtil.debug("set method can accessible: %s ", method);
                         method.setAccessible(true);
                         return method;
                     }
@@ -254,9 +257,9 @@ public class RxBus extends BaseBus {
                 .filter(new Predicate<Method>() {
                     @Override
                     public boolean test(Method method) throws Exception {
-                        boolean isOK = method.isAnnotationPresent(RxSubscribe.class) && method.getParameterTypes() != null && method.getParameterTypes().length > 0;
-                        LoggerUtil.debug("%s is has RxSubscribe annotation: %s", method, isOK);
-                        return isOK;
+                        boolean hasRxSubscribeAnnotationAndOnlyOneParam = method.isAnnotationPresent(RxSubscribe.class) && method.getParameterTypes() != null && method.getParameterTypes().length != 1;
+                        LoggerUtil.debug("%s has @RxSubscribe annotation and only one param ? %s", method, hasRxSubscribeAnnotationAndOnlyOneParam);
+                        return hasRxSubscribeAnnotationAndOnlyOneParam;
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -264,76 +267,74 @@ public class RxBus extends BaseBus {
                 .subscribe(new Consumer<Method>() {
                     @Override
                     public void accept(Method method) throws Exception {
-                        LoggerUtil.debug("now start add subscription method: %s", method);
+                        LoggerUtil.debug("now start to add subscription method: %s", method);
                         addSubscriptionMethod(subscriber, method);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        LoggerUtil.error(throwable, "%s fail register", subscriber);
+                        LoggerUtil.error(throwable, "%s failed on register method", subscriber);
                     }
                 }, new Action() {
                     @Override
                     public void run() throws Exception {
-                        LoggerUtil.debug("%s register complete", subscriber);
+                        LoggerUtil.debug("%s registered complete", subscriber);
                     }
                 });
     }
 
     private void addSubscriptionMethod(final Object subscriber, final Method method) {
-        Disposable subscribe =
-                Observable.just(method.getParameterTypes()[0])
-                        .doOnNext(new Consumer<Class<?>>() {
+        Disposable subscribe = Observable.just(method.getParameterTypes()[0])
+                .doOnNext(new Consumer<Class<?>>() {
+                    @Override
+                    public void accept(Class<?> type) throws Exception {
+                        LoggerUtil.debug("Origin: [method: %s ] , param[0] type: %s", method, type);
+                    }
+                })
+                .map(new Function<Class<?>, Class<?>>() {
+                    @Override
+                    public Class<?> apply(Class<?> type) throws Exception {
+                        Class<?> eventType = getEventType(type);
+                        LoggerUtil.debug("Listen event type: %s", eventType);
+                        return eventType;
+                    }
+                })
+                .flatMap(new Function<Class<?>, ObservableSource<?>>() {
+                    @Override
+                    public ObservableSource<?> apply(Class<?> type) throws Exception {
+                        RxSubscribe rxAnnotation = method.getAnnotation(RxSubscribe.class);
+                        LoggerUtil.debug("%s @RxSubscribe Annotation: %s", method, rxAnnotation.observeOnThread());
+                        Observable<?> observable = rxAnnotation.isSticky() ? ofStickyType(type) : ofType(type);
+                        return observable.observeOn(EventThread.getScheduler(rxAnnotation.observeOnThread()));
+                    }
+                })
+                .subscribe(
+                        new Consumer<Object>() {
                             @Override
-                            public void accept(Class<?> type) throws Exception {
-                                LoggerUtil.debug("Origin: [method: %s ] , param[0] type: %s", method, type);
+                            @SuppressWarnings("all")
+                            public void accept(Object obj) throws Exception {
+                                LoggerUtil.debug("Subscriber:%s invoke Method:%s", subscriber, method);
+                                try {
+                                    method.invoke(subscriber, obj);
+                                } catch (IllegalAccessException e) {
+                                    LoggerUtil.error(e, "%s invoke error", method);
+                                } catch (InvocationTargetException e) {
+                                    LoggerUtil.error(e, "%s invoke error", method);
+                                }
                             }
-                        })
-                        .map(new Function<Class<?>, Class<?>>() {
+                        }, new Consumer<Throwable>() {
                             @Override
-                            public Class<?> apply(Class<?> type) throws Exception {
-                                Class<?> eventType = getEventType(type);
-                                LoggerUtil.debug("Listen event type: %s", eventType);
-                                return eventType;
+                            public void accept(Throwable throwable) throws Exception {
+                                LoggerUtil.error(throwable, "%s can't invoke method: %s", subscriber, method);
                             }
-                        })
-                        .flatMap(new Function<Class<?>, ObservableSource<?>>() {
-                            @Override
-                            public ObservableSource<?> apply(Class<?> type) throws Exception {
-                                RxSubscribe rxAnnotation = method.getAnnotation(RxSubscribe.class);
-                                LoggerUtil.debug("%s RxSubscribe Annotation: %s", method, rxAnnotation.observeOnThread());
-                                Observable<?> observable = rxAnnotation.isSticky() ? ofStickyType(type) : ofType(type);
-                                observable.observeOn(EventThread.getScheduler(rxAnnotation.observeOnThread()));
-                                return observable;
-                            }
-                        })
-                        .subscribe(
-                                new Consumer<Object>() {
-                                    @Override
-                                    @SuppressWarnings("all")
-                                    public void accept(Object obj) throws Exception {
-                                        LoggerUtil.debug("Subscriber:%s invoke Method:%s", subscriber, method);
-                                        try {
-                                            method.invoke(subscriber, obj);
-                                        } catch (IllegalAccessException e) {
-                                            LoggerUtil.error(e, "%s invoke error", method);
-                                        } catch (InvocationTargetException e) {
-                                            LoggerUtil.error(e, "%s invoke error", method);
-                                        }
-                                    }
-                                }, new Consumer<Throwable>() {
-                                    @Override
-                                    public void accept(Throwable throwable) throws Exception {
-                                        LoggerUtil.error(throwable, "%s can't invoke %s", subscriber, method);
-                                    }
-                                });
+                        });
         CompositeDisposable compositeDisposable = subscriptions.get(subscriber.hashCode());
         if (compositeDisposable == null) {
             compositeDisposable = new CompositeDisposable();
         }
         compositeDisposable.add(subscribe);
         subscriptions.put(subscriber.hashCode(), compositeDisposable);
-        LoggerUtil.debug("Registered %s", method);
+        LoggerUtil.debug("Registered method %s complete", method);
     }
 
     /**

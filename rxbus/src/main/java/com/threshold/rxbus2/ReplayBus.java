@@ -7,7 +7,7 @@ import com.jakewharton.rxrelay2.ReplayRelay;
  * Every observer could receive same sequence event.
  * See also {@link ReplayRelay}
  */
-
+@SuppressWarnings("WeakerAccess")
 public class ReplayBus extends BaseBus {
 
     private static volatile ReplayBus defaultBus;
