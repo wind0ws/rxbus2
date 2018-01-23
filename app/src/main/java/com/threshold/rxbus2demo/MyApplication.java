@@ -7,11 +7,11 @@ import com.orhanobut.logger.FormatStrategy;
 import com.orhanobut.logger.Logger;
 import com.orhanobut.logger.PrettyFormatStrategy;
 import com.threshold.rxbus2.RxBus;
-import com.threshold.rxbus2demo.util.RxLogger;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
+ * The Application for app.
  * Created by threshold on 2017/1/16.
  */
 
@@ -22,7 +22,7 @@ public class MyApplication extends Application {
         super.onCreate();
 
         FormatStrategy formatStrategy = PrettyFormatStrategy.newBuilder()
-                .tag("ExpInquiry")
+                .tag("RxBus2")
                 .build();
         Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy) {
             @Override
@@ -31,10 +31,15 @@ public class MyApplication extends Application {
             }
         });
 
-        RxBus.config(AndroidSchedulers.mainThread(),new RxLogger());
-        //If you don't want to output RxBus log,using this instead
-//        RxBus.config(AndroidSchedulers.mainThread());
-        //OR this
-//        EventThread.setMainThreadScheduler(AndroidSchedulers.mainThread());
+        //set MAIN THREAD for @RxSubscribe annotation
+        RxBus.setMainScheduler(AndroidSchedulers.mainThread());
+        //OR
+        //        EventThread.setMainThreadScheduler(AndroidSchedulers.mainThread());
+
+
+        //This option is optional. Using this only if you want to output RxBus log
+//        RxBus.setLogger(new RxLogger());
+
+//        RxBus.config(AndroidSchedulers.mainThread(),new RxLogger());//this method is removed in latest version.
     }
 }

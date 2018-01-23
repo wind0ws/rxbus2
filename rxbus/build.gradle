@@ -1,6 +1,6 @@
 apply plugin: 'java'
-apply plugin: 'com.novoda.bintray-release'
-apply plugin: 'com.github.dcendents.android-maven'
+// apply plugin: 'com.novoda.bintray-release'
+// apply plugin: 'com.github.dcendents.android-maven'
 
 group='com.github.wind0ws'
 
@@ -8,7 +8,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava
-    implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.2'
+    implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.8'
 
     // https://mvnrepository.com/artifact/com.jakewharton.rxrelay2/rxrelay
     implementation('com.jakewharton.rxrelay2:rxrelay:2.0.0'){
@@ -17,16 +17,16 @@ dependencies {
 
 }
 
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
 
-publish {
-    artifactId = 'rxbus'//模块名称
-    userOrg = rootProject.userOrg
-    groupId = rootProject.groupId
-    uploadName = rootProject.uploadName //模块上传后所在的文件夹名称
-    publishVersion = rootProject.publishVersion//模块版本号
-    desc = rootProject.description//模块的描述
-    website = rootProject.website //模块的网站
-    licences = rootProject.licences //模块的licences
-}
+//publish {
+//    artifactId = 'rxbus'//模块名称
+//    userOrg = rootProject.userOrg
+//    groupId = rootProject.groupId
+//    uploadName = rootProject.uploadName //模块上传后所在的文件夹名称
+//    publishVersion = rootProject.publishVersion//模块版本号
+//    desc = rootProject.description//模块的描述
+//    website = rootProject.website //模块的网站
+//    licences = rootProject.licences //模块的licences
+//}

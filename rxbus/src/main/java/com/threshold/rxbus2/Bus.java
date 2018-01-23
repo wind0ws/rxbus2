@@ -21,7 +21,7 @@ public interface Bus {
      * @param <T> event type
      * @return Observable of {@code T}
      */
-    <T> Observable<T> ofType(Class<T> eventType);
+    <T> Observable<T> ofType(@NonNull Class<T> eventType);
 
     /**
      * Returns true if the subject has any Observers.

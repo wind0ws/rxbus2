@@ -63,7 +63,7 @@ public enum EventThread {
             default:
             case MAIN:
                 if (mainThreadScheduler == null) {
-                    throw new IllegalStateException("pass the main thread scheduler for your current run time environment before use");
+                    throw new IllegalStateException("pass the main thread scheduler for your current runtime environment before use");
                 }
                 scheduler = mainThreadScheduler;
                 break;

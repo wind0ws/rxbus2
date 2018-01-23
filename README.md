@@ -15,7 +15,7 @@ This is seems like [EventBus](https://github.com/greenrobot/EventBus) which inte
 	* ReplayBus
 
 ## [Getting started](https://jitpack.io/#wind0ws/rxbus2)
-The first step is to include RxBus 2 into your project, for example, as a Gradle compile dependency:
+The first step is to include RxBus2 into your project, for example, as a Gradle compile dependency:
 
 Because of using [jitpack.io](https://jitpack.io/),so we need add the jitpack.io repository in your root project gradle:
 
@@ -35,7 +35,7 @@ and then add rxbus2 dependency in your module gradle:
     implementation('com.jakewharton.rxrelay2:rxrelay:2.0.0'){
         exclude group: 'io.reactivex.rxjava2',module: 'rxjava'
     }
-    implementation "com.github.wind0ws:rxbus2:1.0.1"
+    implementation "com.github.wind0ws:rxbus2:1.1.0"
 // maybe you need RxAndroid2 if you are using this on Android.
 //   implementation('io.reactivex.rxjava2:rxandroid:2.x.x') {
 //        exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
@@ -91,15 +91,15 @@ public class MyApplication extends Application {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rx_bus);
-	//some other init view code ...
+	    //some other code ...
         RxBus.getDefault().register(this);
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         //auto release register with Annotation RxSubscribe.
         RxBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 ```
 
@@ -111,8 +111,8 @@ public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnFireEvent:
                 RxBus.getDefault().post(100);//post integer event
-                RxBus.getDefault().post("Hi,Fire string event");//post string event
-		RxBus.getDefault().post(new MyEvent("data on my event"));//post my event.
+                RxBus.getDefault().post("Hi,a string event");//post string event
+		        RxBus.getDefault().post(new MyEvent("data on my event"));//post my event.
                 break;
          }
  }

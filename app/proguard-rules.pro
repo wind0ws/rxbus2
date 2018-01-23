@@ -115,11 +115,6 @@
     java.lang.Object readResolve();
 }
 
--keepclassmembers enum * {
-  public static **[] values();
-  public static ** valueOf(java.lang.String);
-}
-
 -keepclassmembers class * {
     public void *ButtonClicked(android.view.View);
 }

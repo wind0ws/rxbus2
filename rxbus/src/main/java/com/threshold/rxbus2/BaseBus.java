@@ -19,7 +19,7 @@ public class BaseBus implements Bus {
 
     private static Logger sLogger;
 
-    /**
+    /*
      * Set {@link EventThread#MAIN} {@link Scheduler} in your current environment.<br/>
      * <p>
      *     Handy method for {@link EventThread#setMainThreadScheduler(Scheduler)}
@@ -28,11 +28,10 @@ public class BaseBus implements Bus {
      * @param mainScheduler mainScheduler for {@link EventThread#MAIN}
      * @param logger Util for record Bus log.if set null, no log will output.
      */
-    public static void config(@NonNull Scheduler mainScheduler,@Nullable Logger logger) {
-        ObjectHelper.requireNonNull(mainScheduler, "mainScheduler == null ");
-        EventThread.setMainThreadScheduler(mainScheduler);
-        sLogger = logger;
-    }
+//    public static void config(@NonNull Scheduler mainScheduler,@Nullable Logger logger) {
+//        EventThread.setMainThreadScheduler(ObjectHelper.requireNonNull(mainScheduler, "mainScheduler == null "));
+//        sLogger = logger;
+//    }
 
     /**
      * Util for record Bus log. If set null, no log will output.
@@ -72,7 +71,7 @@ public class BaseBus implements Bus {
     }
 
     @Override @SuppressWarnings("unchecked")
-    public <T> Observable<T> ofType(Class<T> eventType) {
+    public <T> Observable<T> ofType(@NonNull Class<T> eventType) {
         if (eventType.equals(Object.class)) {
             return (Observable<T>) relay;
         }
