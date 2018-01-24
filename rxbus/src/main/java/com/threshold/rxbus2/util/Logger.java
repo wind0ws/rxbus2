@@ -1,6 +1,7 @@
 package com.threshold.rxbus2.util;
 
 /**
+ * Interface for record RxBus log.
  * Created by threshold on 2017/1/16.
  */
 

@@ -7,11 +7,10 @@ import com.threshold.rxbus2.util.EventThread;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +32,7 @@ import io.reactivex.schedulers.Schedulers;
 
 /**
  * once an {@link Observer} has subscribed, emits all subsequently observed items to the
- * subscriber.<br/>
+ * subscriber.<br>
  * See also {@link PublishRelay}
  */
 @SuppressWarnings("WeakerAccess")
@@ -42,7 +41,7 @@ public class RxBus extends BaseBus {
     private static volatile RxBus defaultBus;
 
     private Map<Object, CompositeDisposable> subscriptions = new HashMap<>();
-    private final Map<Class<?>, List<Object>> stickyEventMap;
+    private final Map<Integer, List<Object>> stickyEventMap;
 
 //    /*
 //     * Use {@link #getDefault()} instead.
@@ -88,27 +87,27 @@ public class RxBus extends BaseBus {
     public void postSticky(@NonNull Object event) {
         ObjectHelper.requireNonNull(event, "event == null");
         synchronized (stickyEventMap) {
-            List<Object> stickyEvents = stickyEventMap.get(event.getClass());
+            List<Object> stickyEvents = stickyEventMap.get(event.getClass().hashCode());
             boolean isStickEventListInMap = true;
             if (stickyEvents == null) {
-                stickyEvents = new ArrayList<>();
+                stickyEvents = new LinkedList<>();
                 isStickEventListInMap = false;
             }
             stickyEvents.add(event);
             if (!isStickEventListInMap) {
-                stickyEventMap.put(event.getClass(), stickyEvents);
+                stickyEventMap.put(event.getClass().hashCode(), stickyEvents);
             }
         }
         post(event);
     }
 
     /**
-     * Get list of specific type sticky event.
+     * Get unmodifiable list of specific type sticky event.
      * <p>
-     * <p> DO NOT ALTER (ADD REMOVE) THIS STICKY EVENT LIST! <br/>
-     * <p>
-     * If you want delete some of this list,please use {@link #removeSticky(Class)} or {@link #removeSticky(Object)} or {@link #clearSticky()} <br/>
-     * If you want add some sticky event,please use {@link #postSticky(Object)}
+     *   DO NOT ALTER (ADD REMOVE) THIS STICKY EVENT LIST!
+     * </p>
+     * If you want to delete some of this list,please use {@link #removeStickyEventType(Class)}  or {@link #removeStickyEvent(Object)} or {@link #clearAllSticky()} <br>
+     * If you want to add some sticky event,please use {@link #postSticky(Object)}
      *
      * @param eventType type of T
      * @param <T>       the sticky event type that you want
@@ -119,7 +118,7 @@ public class RxBus extends BaseBus {
     public <T> List<T> getSticky(@NonNull Class<T> eventType) {
         ObjectHelper.requireNonNull(eventType, "eventType == null");
         synchronized (stickyEventMap) {
-            List<T> list = (List<T>) stickyEventMap.get(eventType);
+            List<T> list = (List<T>) stickyEventMap.get(eventType.hashCode());
             return list == null ? null : Collections.unmodifiableList(list);
         }
     }
@@ -127,14 +126,29 @@ public class RxBus extends BaseBus {
     /**
      * Remove specific sticky event
      *
-     * @param event the sticky event that you want remove
+     * @param event the sticky event that you want to remove
      */
-    public void removeSticky(@NonNull Object event) {
+    public void removeStickyEvent(@NonNull Object event) {
         ObjectHelper.requireNonNull(event, "event == null");
         synchronized (stickyEventMap) {
-            List<Object> stickyEvents = stickyEventMap.get(event.getClass());
+            List<Object> stickyEvents = stickyEventMap.get(event.getClass().hashCode());
             if (stickyEvents != null) {
                 stickyEvents.remove(event);
+            }
+        }
+    }
+
+    /**
+     * Remove specific sticky event
+     * @param eventType the EventType
+     * @param position the location of EventType
+     */
+    public void removeStickyEventAt(@NonNull Class<?> eventType,int position) {
+        ObjectHelper.requireNonNull(eventType, "eventType == null");
+        synchronized (stickyEventMap) {
+            List<Object> stickyEvents = stickyEventMap.get(eventType.hashCode());
+            if (stickyEvents != null) {
+                stickyEvents.remove(position);
             }
         }
     }
@@ -144,17 +158,17 @@ public class RxBus extends BaseBus {
      *
      * @param eventType the sticky event type that you want remove
      */
-    public void removeSticky(@NonNull Class<?> eventType) {
+    public void removeStickyEventType(@NonNull Class<?> eventType) {
         ObjectHelper.requireNonNull(eventType, "eventType == null");
         synchronized (stickyEventMap) {
-            stickyEventMap.remove(eventType);
+            stickyEventMap.remove(eventType.hashCode());
         }
     }
 
     /**
      * Remove all sticky event.
      */
-    public void clearSticky() {
+    public void clearAllSticky() {
         synchronized (stickyEventMap) {
             stickyEventMap.clear();
         }
@@ -170,7 +184,7 @@ public class RxBus extends BaseBus {
     public <T> Observable<T> ofStickyType(@NonNull Class<T> eventType) {
         synchronized (stickyEventMap) {
             @SuppressWarnings("unchecked")
-            List<T> stickyEvents = (List<T>) stickyEventMap.get(eventType);
+            List<T> stickyEvents = (List<T>) stickyEventMap.get(eventType.hashCode());
             if (stickyEvents != null && stickyEvents.size() > 0) {
                 return Observable.fromIterable(stickyEvents)
                         .mergeWith(ofType(eventType));
@@ -257,9 +271,18 @@ public class RxBus extends BaseBus {
                 .filter(new Predicate<Method>() {
                     @Override
                     public boolean test(Method method) throws Exception {
-                        boolean hasRxSubscribeAnnotationAndOnlyOneParam = method.isAnnotationPresent(RxSubscribe.class) && method.getParameterTypes() != null && method.getParameterTypes().length != 1;
-                        LoggerUtil.debug("%s has @RxSubscribe annotation and only one param ? %s", method, hasRxSubscribeAnnotationAndOnlyOneParam);
-                        return hasRxSubscribeAnnotationAndOnlyOneParam;
+                        boolean hasRxSubscribeAnnotation = method.isAnnotationPresent(RxSubscribe.class);
+                        if (hasRxSubscribeAnnotation) {
+                            LoggerUtil.debug("%s present @RxSubscribe annotation", method.getName());
+                            boolean isOnlyHaveOneParam = method.getParameterTypes() != null && method.getParameterTypes().length == 1;
+                            if (!isOnlyHaveOneParam) {
+                                throw new RuntimeException("Although [" + method + "] present @RxSubscribe annotation. But we expect ONLY ONE param in method.");
+                            }
+                            return true;
+                        }
+                        return false;
+//                        boolean hasRxSubscribeAnnotationAndOnlyOneParam = method.isAnnotationPresent(RxSubscribe.class) && method.getParameterTypes() != null && method.getParameterTypes().length == 1;
+//                        LoggerUtil.debug("%s has @RxSubscribe annotation and only one param ? %s", method, hasRxSubscribeAnnotationAndOnlyOneParam);
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -274,6 +297,7 @@ public class RxBus extends BaseBus {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
                         LoggerUtil.error(throwable, "%s failed on register method", subscriber);
+                        throw new RuntimeException(subscriber + " failed on register method", throwable);
                     }
                 }, new Action() {
                     @Override
@@ -314,18 +338,21 @@ public class RxBus extends BaseBus {
                             @SuppressWarnings("all")
                             public void accept(Object obj) throws Exception {
                                 LoggerUtil.debug("Subscriber:%s invoke Method:%s", subscriber, method);
-                                try {
-                                    method.invoke(subscriber, obj);
-                                } catch (IllegalAccessException e) {
-                                    LoggerUtil.error(e, "%s invoke error", method);
-                                } catch (InvocationTargetException e) {
-                                    LoggerUtil.error(e, "%s invoke error", method);
-                                }
+                                method.setAccessible(true);
+                                method.invoke(subscriber, obj);//now RxBus2 do not handle exception for method. you should do it by yourself.
+//                                try {
+//                                    method.invoke(subscriber, obj);
+//                                } catch (IllegalAccessException e) {
+//                                    LoggerUtil.error(e, "%s invoke error", method);
+//                                } catch (InvocationTargetException e) {
+//                                    LoggerUtil.error(e, "%s invoke error", method);
+//                                }
                             }
                         }, new Consumer<Throwable>() {
                             @Override
                             public void accept(Throwable throwable) throws Exception {
-                                LoggerUtil.error(throwable, "%s can't invoke method: %s", subscriber, method);
+                                LoggerUtil.error(throwable, "[%s] invoke method:[%s] failed", subscriber, method);
+                                throw new RuntimeException(throwable);//throw exception for whom subscribe this.
                             }
                         });
         CompositeDisposable compositeDisposable = subscriptions.get(subscriber.hashCode());

@@ -3,6 +3,7 @@ package com.threshold.rxbus2demo.util;
 import java.util.Random;
 
 /**
+ * Util for generate random integer.
  * Created by threshold on 2017/1/19.
  */
 

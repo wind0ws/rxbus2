@@ -26,6 +26,7 @@ public interface Bus {
     /**
      * Returns true if the subject has any Observers.
      * <p>The method is thread-safe.
+     * @return false for no observers.
      */
     boolean hasObservers();
 }

@@ -14,13 +14,13 @@ import io.reactivex.internal.functions.ObjectHelper;
  * Base bus
  * Created by threshold on 2017/1/18.
  */
-
+@SuppressWarnings({"WeakerAccess","unused"})
 public class BaseBus implements Bus {
 
     private static Logger sLogger;
 
     /*
-     * Set {@link EventThread#MAIN} {@link Scheduler} in your current environment.<br/>
+     * Set {@link EventThread#MAIN} {@link Scheduler} in your current environment.<br>
      * <p>
      *     Handy method for {@link EventThread#setMainThreadScheduler(Scheduler)}
      * </p>
@@ -42,7 +42,7 @@ public class BaseBus implements Bus {
     }
 
     /**
-     * Set {@link EventThread#MAIN} {@link Scheduler} in your current environment.<br/>
+     * Set {@link EventThread#MAIN} {@link Scheduler} in your current environment.<br>
      * For example in Android,you probably set @{code AndroidSchedulers.mainThread()}.
      * <p>
      *     Handy method for {@link EventThread#setMainThreadScheduler(Scheduler)}

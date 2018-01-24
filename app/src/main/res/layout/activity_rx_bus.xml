@@ -8,30 +8,31 @@
               android:paddingLeft="@dimen/activity_horizontal_margin"
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_vertical_margin"
-              tools:context=".RxBusActivity">
+              tools:context=".RxBusActivity"
+              tools:ignore="HardcodedText">
     <Button
         android:id="@+id/btnFireEvent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Fire Event"
+        android:text="Fire Normal Event(DemoEvent1)"
         android:onClick="onClick"/>
     <Button
         android:id="@+id/btnFireStickyEvent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Fire Sticky Event"
+        android:text="Fire Sticky Event(DemoEvent2)"
         android:onClick="onClick"/>
     <Button
         android:id="@+id/btnAddNewSubscriber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Subscriber"
+        android:text="Add New Subscriber(Listen DemoEvent1)"
         android:onClick="onClick"/>
     <Button
         android:id="@+id/btnRemoveStickyEvent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Remove Sticky Event"
+        android:text="Remove The Last Sticky Event(DemoEvent2)"
         android:onClick="onClick"/>
 
     <ScrollView
@@ -39,11 +40,10 @@
         android:layout_height="match_parent">
         <TextView
             android:id="@+id/text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text=""/>
     </ScrollView>
-
 
 
 </LinearLayout>

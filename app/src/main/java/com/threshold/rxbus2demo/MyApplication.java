@@ -7,6 +7,7 @@ import com.orhanobut.logger.FormatStrategy;
 import com.orhanobut.logger.Logger;
 import com.orhanobut.logger.PrettyFormatStrategy;
 import com.threshold.rxbus2.RxBus;
+import com.threshold.rxbus2demo.util.RxLogger;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -38,7 +39,7 @@ public class MyApplication extends Application {
 
 
         //This option is optional. Using this only if you want to output RxBus log
-//        RxBus.setLogger(new RxLogger());
+        RxBus.setLogger(new RxLogger());
 
 //        RxBus.config(AndroidSchedulers.mainThread(),new RxLogger());//this method is removed in latest version.
     }

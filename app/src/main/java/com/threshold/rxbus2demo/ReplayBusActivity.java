@@ -16,6 +16,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 /**
+ * Demo for showing {@link ReplayBus} usage.
  * Created by threshold on 2017/1/19.
  */
 

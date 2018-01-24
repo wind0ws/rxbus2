@@ -3,6 +3,7 @@ package com.threshold.rxbus2demo.util;
 import com.threshold.rxbus2.util.Logger;
 
 /**
+ * Logger for record RxBus2 internal log.(For debug purpose.)
  * Created by threshold on 2017/1/17.
  */
 

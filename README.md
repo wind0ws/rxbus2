@@ -28,19 +28,19 @@ allprojects {
  }
 }
 ```
-and then add rxbus2 dependency in your module gradle:
+and then add RxBus2 dependency in your module gradle:
 
 ```groovy
     implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.x.x'
     implementation('com.jakewharton.rxrelay2:rxrelay:2.0.0'){
         exclude group: 'io.reactivex.rxjava2',module: 'rxjava'
     }
-    implementation "com.github.wind0ws:rxbus2:1.1.0"
+    implementation "com.github.wind0ws:rxbus2:1.1.1"
 // maybe you need RxAndroid2 if you are using this on Android.
 //   implementation('io.reactivex.rxjava2:rxandroid:2.x.x') {
 //        exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
 //    }
-//remember replace "2.x.x" to the latest version.
+//remember replace "2.x.x" to the latest version. You can find latest version of RxBus2 on [release page](https://github.com/wind0ws/rxbus2/releases)
 ```
 > seems complicated？
 > Not at all. I just want to make your project using latest version of library and just one version. If you confused about it, just check the [gradle file](https://github.com/wind0ws/rxbus2/blob/master/app/build.gradle) on this repo.
@@ -60,26 +60,26 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        // if you using Annotation,and observeOnThread MAIN, you should config this.
+        // if you using @RxSubscribe Annotation,and observeOn MAIN, you should config this.
         RxBus.setMainScheduler(AndroidSchedulers.mainThread());
     }
 }
 ```
-> You can find AndroidSchedulers here [RxAndroid](https://github.com/ReactiveX/RxAndroid)
+> You can find AndroidSchedulers here [RxAndroid](https://github.com/ReactiveX/RxAndroid).(This operation is optional, do this only if you want to use @RxSubscribe Annotation and observeOn MAIN THREAD.)
 ### Annotation usage(just for RxBus)
 * write listen event method
 
 ```java
     @RxSubscribe(observeOnThread = EventThread.MAIN)
     public void listenRxIntegerEvent(int code) {
-        String text = String.format("{ Receive event: %s\nCurrent thread: %s }", code, Thread.currentThread());
+        String text = String.format("{ Receive event: %s\nCurrent thread: %s }", code, Thread.currentThread().getId());
         Log.d("RxBus",text)
     }
 ```
 ```java
     @RxSubscribe(observeOnThread = EventThread.IO,isSticky = true)
     public void listenRxStringEvent(String event) {
-        final String text = String.format("{ Receive event: %s\nCurrent thread: %s }", event, Thread.currentThread());
+        final String text = String.format("{ Receive event: %s\nCurrent thread: %s }", event, Thread.currentThread().getId());
         Log.d("RxBus",text);
     }
 ```
